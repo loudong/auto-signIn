@@ -1,5 +1,6 @@
 const koa = require('koa')
 const schedule = require('node-schedule')
+const mail = require('nodemailer')
 const _request= require('request')
 // const axios = require('axios')
 const app = new koa()
@@ -12,6 +13,22 @@ const options = {
     headers: {
         'cookie': 'sessionid='+ sessionid,
     },
+}
+
+const transport = mail.createTransport({
+    host: 'smtp.qq.com',
+    port: 465,
+    auth: {
+        user: '767416042@qq.com',
+        pass: 'oncazqeehtjrbfea'
+    }
+})
+const mailOption = {
+    from: '生活就像一场梦 767416042@qq.com',
+    to: 'moye@yowant.com',
+    subject: '每日打卡',
+    html: '<p>打卡成功</p>',
+
 }
 function request(url, options) {
     return new Promise(function (resolve, reject) {
@@ -26,6 +43,10 @@ async function start (ctx, next) {
     console.log(`第${num}次请求`);
     const res = await request(options);
     console.log('结果', res.body)
+    transport.sendMail(mailOption, (err, response) => {
+        if(err) { console.log(err) }
+        else { console.log(response)}
+    })
 }
 
 const rule = '30 10 0 * * *'; // 每天的凌晨0点10分30秒触发'
